@@ -29,7 +29,8 @@ namespace LCTerminalAutocomplete
             TerminalBeginUsing += OnTerminalBeginUsing;
             TerminalParsedSentence += OnTerminalSubmit;
             TerminalTextChanged += OnTerminalTextChange;
-            _customCommands = ((BaseUnityPlugin)this).Config.Bind<string[]>("Custom Commands", "Commands", new string[] { "" }, "Place your commands here").Value;
+            string customCommands = ((BaseUnityPlugin)this).Config.Bind<string>("Custom Commands", "Commands", "" , "seperate your comments with , (no whitespace)").Value;
+            _customCommands = customCommands.Split(',');
         }
         private void OnTerminalTextChange(object sender, TerminalTextChangedEventArgs e)
         {
@@ -81,6 +82,7 @@ namespace LCTerminalAutocomplete
             }
             Logger.LogInfo($"|Plugin Terminal Autocomplete loaded keywors|");
             _commands = commands.ToArray();
+            _commands.AddRangeToArray(_customCommands);
         }
 
         private void OnRightArrowPerformed(InputAction.CallbackContext context)

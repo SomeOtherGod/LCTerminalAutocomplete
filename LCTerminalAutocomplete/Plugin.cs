@@ -4,18 +4,20 @@ using System.Reflection;
 using UnityEngine.InputSystem;
 using static TerminalApi.Events.Events;
 using System.Collections.Generic;
+using LethalCompanyInputUtils.Api;
 
 namespace LCTerminalAutocomplete
 {
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency("atomic.terminalapi", MinimumDependencyVersion: "1.3.0")]
+    [BepInDependency("com.rune580.LethalCompanyInputUtils", MinimumDependencyVersion: "0.4.2")]
     public partial class Plugin : BaseUnityPlugin
     {
-        private const string modGUID = "hox.lcterminalautocomplete", modName = "Terminal Autocomplete", modVersion = "0.0.1";
+        private const string modGUID = "hox.lcterminalautocomplete", modName = "Terminal Autocomplete", modVersion = "1.0.4";
         private Terminal Terminal;
-        private InputAction _leftArrow;
-        private InputAction _rightArrow;
-        private string[] _commands = { "", "help", "moons", "store", "bestiary", "storage", "other", "view monitor"};
+        private Keybinds _keybinds;
+        private string[] _commands;
+        private string[] _customCommands;
         private int _userInput = 0;
         private int _index = 0;
         private void Awake()
@@ -27,6 +29,7 @@ namespace LCTerminalAutocomplete
             TerminalBeginUsing += OnTerminalBeginUsing;
             TerminalParsedSentence += OnTerminalSubmit;
             TerminalTextChanged += OnTerminalTextChange;
+            _customCommands = ((BaseUnityPlugin)this).Config.Bind<string[]>("Custom Commands", "Commands", new string[] { "" }, "Place your commands here").Value;
         }
         private void OnTerminalTextChange(object sender, TerminalTextChangedEventArgs e)
         {
@@ -45,26 +48,26 @@ namespace LCTerminalAutocomplete
 
         private void OnTerminalExited(object sender, TerminalEventArgs e)
         {
-            _leftArrow.performed -= OnLeftArrowPerformed;
-            _leftArrow.Disable();
+            _keybinds.PrevTerminalKey.performed -= OnLeftArrowPerformed;
+            _keybinds.PrevTerminalKey.Disable();
 
-            _rightArrow.performed -= OnRightArrowPerformed;
-            _rightArrow.Disable();
+            _keybinds.NextTerminalKey.performed -= OnRightArrowPerformed;
+            _keybinds.NextTerminalKey.Disable();
         }
 
         private void OnTerminalBeginUsing(object sender, TerminalEventArgs e)
         {
-            _leftArrow.Enable();
-            _leftArrow.performed += OnLeftArrowPerformed;
+            _keybinds.PrevTerminalKey.Enable();
+            _keybinds.PrevTerminalKey.performed += OnLeftArrowPerformed;
 
-            _rightArrow.Enable();
-            _rightArrow.performed += OnRightArrowPerformed;
+            _keybinds.NextTerminalKey.Enable();
+            _keybinds.NextTerminalKey.performed += OnRightArrowPerformed;
         }
 
         private void OnTerminalStarted(object sender, TerminalEventArgs e)
         {
-            _leftArrow = new InputAction("LeftArrow", 0, "<Keyboard>/leftarrow", "Press");
-            _rightArrow = new InputAction("RightArrow", 0, "<Keyboard>/rightarrow", "Press");
+            _keybinds.PrevTerminalKey = new InputAction("LeftArrow", 0, "<Keyboard>/leftarrow", "Press");
+            _keybinds.NextTerminalKey = new InputAction("RightArrow", 0, "<Keyboard>/rightarrow", "Press");
 
             Terminal = TerminalApi.TerminalApi.Terminal;
             Logger.LogInfo($"|Plugin Terminal Autocomplete loaded keywors|");
@@ -121,5 +124,13 @@ namespace LCTerminalAutocomplete
             Terminal.screenText.text = TerminalApi.TerminalApi.Terminal.currentText;
             Terminal.textAdded = text.Length;
         }
+    }
+    public class Keybinds : LcInputActions
+    {
+        [InputAction("<Keyboard>/leftArrow", Name = "Previous Command (AC)")]
+        public InputAction PrevTerminalKey { get; set; }
+
+        [InputAction("<Keyboard>/rightArrow", Name = "Next Command (AC)")]
+        public InputAction NextTerminalKey { get; set; }
     }
 }

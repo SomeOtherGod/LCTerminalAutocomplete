@@ -7,8 +7,8 @@
     <ProjectGuid>{18F4D3B8-76BE-44D5-B4B3-ADE9EE53DB90}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LCTerminalAutoselect</RootNamespace>
-    <AssemblyName>LCTerminalAutoselect</AssemblyName>
+    <RootNamespace>LCTerminalAutocomplete</RootNamespace>
+    <AssemblyName>LCTerminalAutocomplete</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
